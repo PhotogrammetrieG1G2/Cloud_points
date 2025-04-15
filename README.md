@@ -5,7 +5,7 @@ Gestions des images 2D côté back-end, rendu 3D
 Pour Travailler sur le projet, vous devez cloner le projet (Github Desktop ou Git Bash)
 
 Ensuite vous devez recréer l'environnement avec 
-  "python3 -m venv python_env"
+```bash python3 -m venv python_env"```
 Puis en fonction de si vous êtes sur Windows, Linux ou Mac, faire : 
   - Windows :
 ```bash .\python_env\Scripts\activate```
