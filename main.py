@@ -144,7 +144,7 @@ print("\nMatrice de Projection P':\n", P_prime)
 
 # 3. Triangulation d'un point (avec OpenCV)
 point_3d = cv2.triangulatePoints(P, P_prime, l_x1[0:1].T, l_x2[0:1].T)
-point_3d /= point_3d[3]
+#point_3d /= point_3d[3]
 print("\nPoint 3D (OpenCV) reconstruit:", point_3d[:3].T)
 
 # 4. Triangulation de tous les points (DLT)
