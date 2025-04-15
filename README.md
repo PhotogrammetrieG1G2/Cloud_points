@@ -6,7 +6,7 @@ Pour Travailler sur le projet, vous devez cloner le projet (Github Desktop ou Gi
 
 Ensuite vous devez recréer l'environnement avec 
 ```bash python3 -m venv python_env```
-Puis en fonction de si vous êtes sur Windows, Linux ou Mac, faire : 
+.Puis en fonction de si vous êtes sur Windows, Linux ou Mac, faire : 
   - Windows :
 ```bash .\python_env\Scripts\activate```
   - Linux/Mac :
