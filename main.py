@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # Nécessaire pour les plots 3D
 
 
 '''def compute_fundamental_matrix(l_x1, l_x2):
@@ -191,10 +193,52 @@ def triangulate_non_linear(x, x_prime, P, P_prime, X_init, epsilon=1e-5, max_ite
 
     return X_k
 
+def generate_dataset(num_points):
+    # On génère 50 points à la surface d’un cube (6 faces)
+    def random_points_on_cube(n):
+        points = []
+        face_normals = [
+            (1, 0, 0), (-1, 0, 0),
+            (0, 1, 0), (0, -1, 0),
+            (0, 0, 1), (0, 0, -1)
+        ]
+        for _ in range(n):
+            normal = face_normals[np.random.choice(len(face_normals))]
+            point = np.random.uniform(-1, 1, size=3)
+            axis = np.argmax(np.abs(normal))
+            point[axis] = normal[axis]  # fixer un axe à -1 ou 1 selon la face
+            point[2] += 4  # translation en profondeur
+            points.append(point)
+        return np.array(points, dtype=np.float32)
+
+    cube_points_3D = random_points_on_cube(num_points)
+
+    # Matrice intrinsèque
+    K = get_intrinsic_matrix_with_specs(image_shape = (1000, 1500))
+
+    # Caméra 1 (identité)
+    R1 = np.eye(3)
+    t1 = np.zeros((3, 1))
+    P1 = K @ np.hstack((R1, t1))
+
+    # Caméra 2 (translation + légère rotation)
+    R2, _ = cv2.Rodrigues(np.array([0.05, -0.1, 0.05]))
+    t2 = np.array([[-0.5], [0.0], [0.0]])
+    P2 = K @ np.hstack((R2, t2))
+
+    # Projection
+    cube_points_3D_hom = np.hstack((cube_points_3D, np.ones((num_points, 1))))
+    pts1_hom = (P1 @ cube_points_3D_hom.T).T
+    pts2_hom = (P2 @ cube_points_3D_hom.T).T
+
+    pts1 = pts1_hom[:, :2] / pts1_hom[:, 2, np.newaxis]
+    pts2 = pts2_hom[:, :2] / pts2_hom[:, 2, np.newaxis]
+
+    return pts1, pts2
 
 # Exemple d'utilisation avec des points fictifs (points correspondants dans les deux images)
-l_x1 = np.array([[10, 20], [30, 40], [50, 60], [70, 80], [15, 25], [35, 45], [55, 65], [75, 85]])
-l_x2 = np.array([[12, 22], [32, 42], [52, 62], [72, 82], [17, 27], [37, 47], [57, 67], [77, 87]])
+l_x1, l_x2 = generate_dataset(num_points=500)
+print(l_x1, l_x2)
 
 # Dimensions des images (hauteur, largeur)
 image_shape = (1000, 1500)
@@ -238,8 +282,8 @@ for i in range(len(l_x1)):
     points_3D_dlt.append(X_init)
 
     # Triangulation non-linéaire
-    '''X_optimized = triangulate_non_linear(x1, x2, P, P_prime, X_init)
-    points_3D_non_linear.append(X_optimized)'''
+    X_optimized = triangulate_non_linear(x1, x2, P, P_prime, X_init)
+    points_3D_non_linear.append(X_optimized)
 
 # Conversion des listes en tableaux NumPy pour un affichage plus pratique
 points_3D_dlt = np.array(points_3D_dlt)
@@ -249,5 +293,18 @@ points_3D_non_linear = np.array(points_3D_non_linear)
 print("\nPoints 3D triangulés (méthode DLT) :")
 print(points_3D_dlt)
 
-'''print("\nPoints 3D triangulés (méthode non-linéaire) :")
-print(points_3D_non_linear)'''
+print("\nPoints 3D triangulés (méthode non-linéaire) :")
+print(points_3D_non_linear)
+
+
+# Plot
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(points_3D_non_linear[:, 0], points_3D_non_linear[:, 1], points_3D_non_linear[:, 2], c='blue', marker='o')
+
+# Labels and axes
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.set_title('Points 3D triangulés (DLT)')
+plt.show()
