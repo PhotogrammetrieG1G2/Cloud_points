@@ -14,37 +14,14 @@ def fondamental_matrix(l_x1, l_x2):
     Algorithme : Résoud les équations matricielles (l_x1[i])T * F * (l_x2[i]) = 0 pour tout i 
     '''
     assert len(l_x1) == len(l_x2) and len(l_x1) >= 8, "Il faut au moins 8 correspondances"
-
-    # Mise en forme homogène des points
-    x1 = np.array([ [x, y, 1] for x, y in l_x1 ])
-    x2 = np.array([ [x, y, 1] for x, y in l_x2 ])
-
-    # Construction de la matrice A
-    A = [] # On trouve les valeurs de A en regardant ce que vaut X1^T * F * X2
-    for i in range(len(x1)):
-        X1 = x1[i]
-        X2 = x2[i]
-        A.append([
-            X2[0]*X1[0], X2[0]*X1[1], X2[0]*X1[2],
-            X2[1]*X1[0], X2[1]*X1[1], X2[1]*X1[2],
-            X2[2]*X1[0], X2[2]*X1[1], X2[2]*X1[2]
-        ])
-    A = np.array(A)
-
-    # Résolution par SVD (On résoud AF = 0 où A permet de décrire l'équation X1^T * F * X2)
-    U, S, Vt = np.linalg.svd(A)
-    F = Vt[-1].reshape(3, 3)
-
-    # Contraindre F à être de rang 2 (en annulant la plus petite valeur singulière)
-    Uf, Sf, Vtf = np.linalg.svd(F)
-    Sf[-1] = 0
-    F = Uf @ np.diag(Sf) @ Vtf
-
-    # Normalisation de F (facultatif, mais souvent utile)
-    F = F / F[-1, -1]
-
+    # Convertir les points en format correct (float32)
+    l_x1 = np.array(l_x1, dtype=np.float32)
+    l_x2 = np.array(l_x2, dtype=np.float32)
+    
+    # Trouver la matrice fondamentale en utilisant RANSAC pour une estimation robuste
+    F, mask = cv2.findFundamentalMat(l_x1, l_x2, cv2.FM_RANSAC)
+    
     return F
-
 
 
 # Calcul de P et P'
@@ -129,8 +106,29 @@ def triangulate_points_dlt_all(l_x1, l_x2, P, P_prime):
 # ---------------------
 # Exemple principal
 # ---------------------
-l_x1 = np.array([[10, 20], [30, 40], [50, 60], [70, 80], [15, 25], [35, 45], [55, 65], [75, 85]])
-l_x2 = np.array([[12, 22], [32, 42], [52, 62], [72, 82], [17, 27], [37, 47], [57, 67], [77, 87]])
+# Exemple de points 2D dans l'image 1
+l_x1 = np.array([
+    [150, 200],  # Point 1
+    [320, 180],  # Point 2
+    [500, 250],  # Point 3
+    [600, 300],  # Point 4
+    [180, 220],  # Point 5
+    [330, 240],  # Point 6
+    [480, 270],  # Point 7
+    [550, 350]   # Point 8
+])
+
+# Exemple de points correspondants dans l'image 2 (décalés)
+l_x2 = np.array([
+    [152, 202],  # Point 1 (décalé)
+    [322, 182],  # Point 2 (décalé)
+    [502, 252],  # Point 3 (décalé)
+    [602, 302],  # Point 4 (décalé)
+    [182, 222],  # Point 5 (décalé)
+    [332, 242],  # Point 6 (décalé)
+    [482, 272],  # Point 7 (décalé)
+    [552, 352]   # Point 8 (décalé)
+])
 
 # 1. Calcul de la matrice fondamentale
 F = fondamental_matrix(l_x1, l_x2)
