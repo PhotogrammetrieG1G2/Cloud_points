@@ -10,3 +10,5 @@ Puis en fonction de si vous êtes sur Windows, Linux ou Mac, faire :
   - Linux/Mac : ```source python_env/source/activate``` ou ```source python_env/Scripts/activate```
 en fonction de quel dossier est présent dans python_env.
 Enfin, installer toutes les bibliothèques : ```pip install -r requirements.txt```
+
+Pour ajouter de nouvelles bibliothèques, vous devez activer l'environnement, faire ```pip install <votre librairie> ``` et ```pip freeze > requirements.txt```
