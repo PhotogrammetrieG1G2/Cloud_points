@@ -18,11 +18,11 @@ from mpl_toolkits.mplot3d import Axes3D  # Nécessaire pour les plots 3D
     F, mask = cv2.findFundamentalMat(l_x1, l_x2, cv2.FM_RANSAC)
     #mask est un tableau de valeurs binaires (0 ou 1) qui indique si chaque paire de points correspondants a été considérée comme valide ou non lors de l'estimation de F
 
-    return F, mask'''
+    return F'''
     
 def compute_fundamental_matrix(l_x1, l_x2):
-    '''
-    C celle d'Axel la fonction prédéfinie veut pas marcher 
+    """
+    On utilise celle-ci car celle du dessus semble plus lente
     Entrée : 
         l_x1 : liste de points de l'image 1 (list of [x, y])
         l_x2 : liste de points correspondants de l'image 2 (list of [x, y])
@@ -30,7 +30,7 @@ def compute_fundamental_matrix(l_x1, l_x2):
     Sortie : 
         La matrice fondamentale F (3x3)
     Algorithme : Résoud les équations matricielles (l_x1[i])T * F * (l_x2[i]) = 0 pour tout i 
-    '''
+    """
     assert len(l_x1) == len(l_x2) and len(l_x1) >= 8, "Il faut au moins 8 correspondances"
 
     # Mise en forme homogène des points
@@ -194,7 +194,7 @@ def triangulate_non_linear(x, x_prime, P, P_prime, X_init, epsilon=1e-5, max_ite
     return X_k
 
 def generate_dataset(num_points):
-    # On génère 50 points à la surface d’un cube (6 faces)
+    # On génère num_points points à la surface d’un cube (6 faces)
     def random_points_on_cube(n):
         points = []
         face_normals = [
