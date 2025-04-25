@@ -95,31 +95,41 @@ tracks = []            # Liste des pistes (chaînes de correspondance inter-imag
 point_to_track = {}    # Dictionnaire pour savoir à quelle piste appartient un point (image_idx, kp_idx)
 
 # Ajoute une correspondance à la bonne piste
+def has_conflict(track, new_point):
+    return any(p[0] == new_point[0] for p in track)
+
 def add_match(img1_idx, kp1_idx, img2_idx, kp2_idx):
     p1 = (img1_idx, kp1_idx)
     p2 = (img2_idx, kp2_idx)
     
     t1 = point_to_track.get(p1)
     t2 = point_to_track.get(p2)
-    
+
     if t1 is not None and t2 is not None:
-        if t1 != t2:  # Fusion de pistes si nécessaire
-            tracks[t1].extend(tracks[t2])
-            for pt in tracks[t2]:
-                point_to_track[pt] = t1
-            tracks[t2] = []  # On vide l'ancienne piste fusionnée
+        if t1 != t2:
+            # Vérifie qu'on ne fusionne pas des points dupliqués dans une même image
+            track1 = tracks[t1]
+            track2 = tracks[t2]
+            if not any(p[0] in [q[0] for q in track1] for p in track2):
+                tracks[t1].extend(track2)
+                for pt in track2:
+                    point_to_track[pt] = t1
+                tracks[t2] = []
     elif t1 is not None:
-        tracks[t1].append(p2)
-        point_to_track[p2] = t1
+        if not has_conflict(tracks[t1], p2):
+            tracks[t1].append(p2)
+            point_to_track[p2] = t1
     elif t2 is not None:
-        tracks[t2].append(p1)
-        point_to_track[p1] = t2
+        if not has_conflict(tracks[t2], p1):
+            tracks[t2].append(p1)
+            point_to_track[p1] = t2
     else:
-        # Crée une nouvelle piste
+        # Nouvelle piste
         new_track_index = len(tracks)
         tracks.append([p1, p2])
         point_to_track[p1] = new_track_index
         point_to_track[p2] = new_track_index
+
 
 # === Étape 4 : Trouve les correspondances entre deux images (indices des keypoints) ===
 def pt_corres(img1_idx, img2_idx):
@@ -154,16 +164,3 @@ tracks = [t for t in tracks if len(t) >= 2]
 print(f"Nombre total de pistes multi-vues : {len(tracks)}")
 for i, track in enumerate(tracks[:5]):  # Affiche les 5 premières pistes
     print(f"Piste {i+1} : {track}")
-
-## Visualisation des points de correspondance
-
-# def afficher_correspondances(img1_path, img2_path):
-#     matches, kp1, kp2 = points_clés(img1_path, img2_path)
-#     img1 = cv2.imread(img1_path)
-#     img2 = cv2.imread(img2_path)
-#     img_matches = cv2.drawMatches(img1, kp1, img2, kp2, matches[:50], None, flags=2)
-#     cv2.imshow("Correspondances", img_matches)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
-
-# afficher_correspondances('img1.jpg', 'img2.jpg')
