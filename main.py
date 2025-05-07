@@ -68,7 +68,8 @@ def choose_best_RT(candidates, l_x1, l_x2, K):
     return P1, best_P2, np.array(best_points)
 
 # --- MAIN WORKFLOW ---
-l_x1, l_x2 = multi_image_point_matcher.obtain_correspondances()
+#l_x1, l_x2 = multi_image_point_matcher.obtain_correspondances()
+l_x1, l_x2 = datasets.generate_dataset(500)
 image_shape = (1000, 1500)
 
 K = get_intrinsic_matrix_with_specs(image_shape)

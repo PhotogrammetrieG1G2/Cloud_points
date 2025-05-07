@@ -78,11 +78,12 @@ def random_points_on_pyramid(n, height=15.0):
 
 def get_intrinsic_matrix_with_specs(image_shape):
     h, w = image_shape
-    fx = 0.9 * w #(focal_mm / sensor_width_mm)=0.9 (approximation a voir en detail dans le doc)
-    fy = fx  # en général même focale
-    cx = w / 2
-    cy = h / 2
-    return np.array([[fx, 0, cx],[0, fy, cy],[0,  0,  1]])
+    sensor_width_mm = 7.01
+    focal_length_mm = 4.2
+    fx = (focal_length_mm / sensor_width_mm) * w
+    fy = fx
+    cx, cy = w / 2, h / 2
+    return np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
 
 def generate_dataset(num_points):
     # On génère num_points points à la surface d’un cube (6 faces)
