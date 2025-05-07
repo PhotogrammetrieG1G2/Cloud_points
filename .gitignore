@@ -2,4 +2,3 @@ python_env/
 .env/
 __pycache__/
 *.pyc
-Images_temp/
