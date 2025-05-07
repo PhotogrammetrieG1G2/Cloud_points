@@ -26,10 +26,10 @@ def dense_keypoints(img, step=20):
 
 
 
-#mettre sous la forme de fonction qui prend en argument 2 photos
+# Mettre sous la forme de fonction qui prend en argument 2 photos
 
 
-def points_clés(chemin1, chemin2):
+def points_cles(chemin1, chemin2):
     img1 = load_and_resize(chemin1)
     img2 = load_and_resize(chemin2)
     sift = cv2.SIFT_create(contrastThreshold=0.001)
@@ -51,6 +51,6 @@ def points_clés(chemin1, chemin2):
     F, mask = cv2.findFundamentalMat(pts1, pts2, cv2.FM_RANSAC)
     matchesMask = mask.ravel().tolist()
     good_matches = [m for i, m in enumerate(matches) if matchesMask[i]]
-    points1 = [kp1[m.queryIdx].pt for m in matches]
-    points2 = [kp2[m.trainIdx].pt for m in matches]
-    return points1, points2
+    #points1 = [kp1[m.queryIdx].pt for m in matches]
+    #points2 = [kp2[m.trainIdx].pt for m in matches]
+    return good_matches, kp1, kp2
