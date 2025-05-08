@@ -68,9 +68,9 @@ def choose_best_RT(candidates, l_x1, l_x2, K):
     return P1, best_P2, np.array(best_points)
 
 # --- MAIN WORKFLOW ---
-image_folder = "Images_test/Croco"
+image_folder = "Images_test/Enceinte"
 
-l_x1, l_x2 = multi_image_point_matcher.obtain_correspondances(image_folder)
+l_x1, l_x2 = multi_image_point_matcher.obtain_correspondences(image_folder)
 #l_x1, l_x2 = datasets.generate_dataset(500)
 image_shape = (1000, 1500)
 
@@ -84,7 +84,7 @@ P1, P2, points_3D = choose_best_RT(candidates, l_x1, l_x2, K)
 # Visualisation
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.scatter(points_3D[:, 0], points_3D[:, 1], points_3D[:, 2], c='red', marker='o')
+ax.scatter(points_3D[:, 0], points_3D[:, 1], points_3D[:, 2], c='red', marker='o', s=1, antialiased=False)
 ax.set_xlabel("X")
 ax.set_ylabel("Y")
 ax.set_zlabel("Z")

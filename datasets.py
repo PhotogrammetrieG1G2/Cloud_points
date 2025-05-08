@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 
 
+# Ce lien permet d'avoir plusieurs vrais datasets d'images  
+# https://github.com/natowi/photogrammetry_datasets/blob/master/datasets.csv
+
 
 def random_points_on_cube(n):
     points = []
