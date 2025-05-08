@@ -5,8 +5,7 @@ import os
 import matplotlib.pyplot as plt
 
 
-INTENSITY_THRESHOLD = 180
-IMAGE_FOLDER = "Images_test/Croco"
+INTENSITY_THRESHOLD = 50
 
 
 
@@ -38,8 +37,8 @@ def dense_keypoints(img, step=5):
 def filter_keypoints_by_intensity(img, keypoints):
     return [kp for kp in keypoints if img[int(kp.pt[1]), int(kp.pt[0])] < INTENSITY_THRESHOLD]
 
-def obtain_correspondances():
-    image_paths = [os.path.join(IMAGE_FOLDER, f) for f in sorted(os.listdir(IMAGE_FOLDER)) if f.lower().endswith(".jpeg")]
+def obtain_correspondances(image_folder):
+    image_paths = [os.path.join(image_folder, f) for f in sorted(os.listdir(image_folder)) if f.lower().endswith(".jpeg")]
     print("Images détectées :", image_paths)
 
     images = [load_and_resize(path) for path in image_paths]
