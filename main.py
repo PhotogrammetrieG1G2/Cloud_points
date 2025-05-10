@@ -2,8 +2,10 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import tqdm
+import open3d as o3d
+import os
 
-import datasets
 import multi_image_point_matcher
 
 def compute_fundamental_matrix(l_x1, l_x2):
@@ -52,12 +54,13 @@ def choose_best_RT(candidates, l_x1, l_x2, K):
     best_P2 = None
     best_points = None
     P1 = K @ np.hstack((np.eye(3), np.zeros((3, 1))))
-    for R, t in candidates:
+    for R, t in tqdm.tqdm(candidates):
         P2 = K @ np.hstack((R, t.reshape(3, 1)))
         positive_depth = 0
         points_3D = []
-        for i in range(len(l_x1)):
+        for i in tqdm.tqdm(range(len(l_x1))):
             X = triangulate_point(l_x1[i], l_x2[i], P1, P2)
+            X[1] = -X[1]
             if X[2] > 0 and (R @ X + t)[2] > 0:
                 positive_depth += 1
             points_3D.append(X)
@@ -70,23 +73,25 @@ def choose_best_RT(candidates, l_x1, l_x2, K):
 # --- MAIN WORKFLOW ---
 image_folder = "Images_test/Enceinte"
 
-l_x1, l_x2 = multi_image_point_matcher.obtain_correspondences(image_folder)
+image_paths = [os.path.join(image_folder, f)
+                for f in sorted(os.listdir(image_folder)) if f.lower().endswith(".jpeg")]
+
+l_x1, l_x2, F_matrixs, colors = multi_image_point_matcher.obtain_correspondences(image_paths)
 #l_x1, l_x2 = datasets.generate_dataset(500)
 image_shape = (1000, 1500)
 
 K = get_intrinsic_matrix_with_specs(image_shape)
-F = compute_fundamental_matrix(l_x1, l_x2)
+#F = compute_fundamental_matrix(l_x1, l_x2)
+F = F_matrixs[0]
 E = estimate_essential_matrix(F, K)
 candidates = decompose_essential_matrix_all(E)
 
 P1, P2, points_3D = choose_best_RT(candidates, l_x1, l_x2, K)
 
 # Visualisation
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.scatter(points_3D[:, 0], points_3D[:, 1], points_3D[:, 2], c='red', marker='o', s=1, antialiased=False)
-ax.set_xlabel("X")
-ax.set_ylabel("Y")
-ax.set_zlabel("Z")
-ax.set_title("Points 3D reconstruits (meilleure décomposition)")
-plt.show()
+
+pcd = o3d.geometry.PointCloud()
+pcd.colors = o3d.utility.Vector3dVector(colors)
+pcd.points = o3d.utility.Vector3dVector(points_3D)  # points_3d : ton tableau Nx3
+
+o3d.visualization.draw_geometries([pcd])
