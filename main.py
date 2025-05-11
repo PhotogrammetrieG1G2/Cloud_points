@@ -71,18 +71,18 @@ def choose_best_RT(candidates, l_x1, l_x2, K):
     return P1, best_P2, np.array(best_points)
 
 # --- MAIN WORKFLOW ---
-image_folder = "Images_test/Enceinte"
+image_folder = "Images_test/Tpe"
 
 image_paths = [os.path.join(image_folder, f)
                 for f in sorted(os.listdir(image_folder)) if f.lower().endswith(".jpeg")]
 
-l_x1, l_x2, F_matrixs, colors = multi_image_point_matcher.obtain_correspondences(image_paths)
+l_x1, l_x2, F_matrixes, colors = multi_image_point_matcher.obtain_correspondences(image_paths)
 #l_x1, l_x2 = datasets.generate_dataset(500)
 image_shape = (1000, 1500)
 
 K = get_intrinsic_matrix_with_specs(image_shape)
 #F = compute_fundamental_matrix(l_x1, l_x2)
-F = F_matrixs[0]
+F = F_matrixes[0]
 E = estimate_essential_matrix(F, K)
 candidates = decompose_essential_matrix_all(E)
 
