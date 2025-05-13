@@ -10,7 +10,8 @@ INTENSITY_THRESHOLD = 100
 
 # Échantillonnage dense
 STEP = 2
-PATCH_SIZE = 2
+PATCH_SIZE = 10
+MAX_SIZE = 1000
 
 # Paramètres globaux du SIFT (détection très dense)
 SIFT_PARAMS = {
@@ -23,7 +24,7 @@ SIFT_PARAMS = {
 
 # ====================== FONCTIONS ======================
 
-def load_and_resize(path, max_size=800):
+def load_and_resize(path, max_size=MAX_SIZE):
     img_color = cv2.imread(path, cv2.IMREAD_COLOR)
     if img_color is None:
         raise ValueError(f"Erreur : image {path} introuvable.")
